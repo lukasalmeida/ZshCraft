@@ -27,10 +27,10 @@ Com o ZshCraft, você não precisa mais editar o arquivo `~/.zshrc` manualmente 
 +-----------------------------------------------------------------------+
 |  🎨 ZshCraft (Linux GUI)                     Tema Ativo: robbyrussell |
 +------------------------------------+----------------------------------+
-| Temas Disponíveis                  | Pré-visualização do Terminal    |
+| Temas Disponíveis                  | Pré-visualização do Terminal     |
 |                                    | +------------------------------+ |
-| [x] robbyrussell                   | | (o)(o)(o)                     | |
-| [ ] agnoster                       | | ➜  meu-projeto git:(main)     | |
+| [x] robbyrussell                   | | (o)(o)(o)                    | |
+| [ ] agnoster                       | | ➜  meu-projeto git:(main)    | |
 | [ ] bira                           | +------------------------------+ |
 | [ ] af-magic                       |                                  |
 |                                    | [ Aplicar no ~/.zshrc ]          |
@@ -64,7 +64,7 @@ sudo apt install build-essential curl wget libssl-dev libgtk-3-dev libwebkit2gtk
 
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/seu-usuario/zshcraft.git
+git clone https://github.com/lukasalmeida/zshcraft.git
 
 # 2. Acesse a pasta do projeto
 cd zshcraft
