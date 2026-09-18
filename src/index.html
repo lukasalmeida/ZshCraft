@@ -1,62 +1,62 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ZshCraft</title>
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <div class="app-shell">
-      <aside class="sidebar">
-        <div class="brand-block">
-          <span class="brand-mark">Z</span>
-          <div>
-            <p class="eyebrow">Gerenciador</p>
-            <h1>ZshCraft</h1>
-          </div>
-        </div>
-
-        <nav class="menu">
-          <button class="menu-item active">Temas</button>
-          <button class="menu-item">Plugins</button>
-          <button class="menu-item">Starship</button>
-          <button class="menu-item">Backups</button>
-        </nav>
-
-        <div class="theme-list">
-          <button class="theme-button active" data-theme="robbyrussell">robbyrussell</button>
-          <button class="theme-button" data-theme="af-magic">af-magic</button>
-          <button class="theme-button" data-theme="agnoster">agnoster</button>
-          <button class="theme-button" data-theme="gitster">gitster</button>
-          <button class="theme-button" data-theme="bira">bira</button>
-        </div>
-      </aside>
-
-      <main class="content">
-        <header class="topbar">
-          <div>
-            <p class="eyebrow">Preview em tempo real</p>
-            <h2>Terminal Zsh</h2>
-          </div>
-          <button id="apply-theme" class="primary-button">Aplicar tema</button>
-        </header>
-
-        <section class="terminal-window">
-          <div class="terminal-header">
-            <div class="traffic-lights">
-              <span class="red"></span>
-              <span class="yellow"></span>
-              <span class="green"></span>
-            </div>
-            <span class="terminal-title">~/.zshrc</span>
-          </div>
-
-          <pre id="terminal-output" class="terminal-output"></pre>
-        </section>
-      </main>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZshCraft</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand-block">
+      <span class="brand-mark">Z</span>
+      <div>
+        <p class="eyebrow">Gerenciador</p>
+        <h1>ZshCraft</h1>
+      </div>
     </div>
 
-    <script src="./app.js"></script>
-  </body>
+    <nav class="menu">
+      <button class="menu-item active">Temas</button>
+      <button class="menu-item">Plugins</button>
+      <button class="menu-item">Starship</button>
+      <button class="menu-item">Backups</button>
+    </nav>
+
+    <div class="theme-list">
+      <button class="theme-button active" data-theme="robbyrussell">robbyrussell</button>
+      <button class="theme-button" data-theme="af-magic">af-magic</button>
+      <button class="theme-button" data-theme="agnoster">agnoster</button>
+      <button class="theme-button" data-theme="gitster">gitster</button>
+      <button class="theme-button" data-theme="bira">bira</button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Preview em tempo real</p>
+        <h2>Terminal Zsh</h2>
+      </div>
+      <button id="apply-theme" class="primary-button">Aplicar tema</button>
+    </header>
+
+    <section class="terminal-window">
+      <div class="terminal-header">
+        <div class="traffic-lights">
+          <span class="red"></span>
+          <span class="yellow"></span>
+          <span class="green"></span>
+        </div>
+        <span class="terminal-title">~/.zshrc</span>
+      </div>
+
+      <pre id="terminal-output" class="terminal-output"></pre>
+    </section>
+  </main>
+</div>
+
+<script src="./app.js"></script>
+</body>
 </html>
