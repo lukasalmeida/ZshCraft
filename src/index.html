@@ -18,18 +18,87 @@
     </div>
 
     <nav class="menu">
-      <button class="menu-item active">Temas</button>
-      <button class="menu-item">Plugins</button>
-      <button class="menu-item">Starship</button>
-      <button class="menu-item">Backups</button>
+      <button class="menu-item active" data-view="themes">Temas</button>
+      <button class="menu-item" data-view="customize">Personalização</button>
+      <button class="menu-item" data-view="plugins">Plugins</button>
+      <button class="menu-item" data-view="starship">Starship</button>
+      <button class="menu-item" data-view="backups">Backups</button>
     </nav>
 
-    <div class="theme-list">
-      <button class="theme-button active" data-theme="robbyrussell">robbyrussell</button>
-      <button class="theme-button" data-theme="af-magic">af-magic</button>
-      <button class="theme-button" data-theme="agnoster">agnoster</button>
-      <button class="theme-button" data-theme="gitster">gitster</button>
-      <button class="theme-button" data-theme="bira">bira</button>
+    <div id="themes-panel" class="view-panel active">
+      <div class="theme-list">
+        <button class="theme-button active" data-theme="robbyrussell">robbyrussell</button>
+        <button class="theme-button" data-theme="af-magic">af-magic</button>
+        <button class="theme-button" data-theme="agnoster">agnoster</button>
+        <button class="theme-button" data-theme="gitster">gitster</button>
+        <button class="theme-button" data-theme="bira">bira</button>
+      </div>
+    </div>
+
+    <div id="customize-panel" class="view-panel">
+      <div class="customizer-card">
+        <h3>Crie seu tema avançado</h3>
+
+        <div class="customizer-block">
+          <label>Estilo do prompt</label>
+          <div class="segmented">
+            <button class="segment active" data-style="classic" type="button">Clássico</button>
+            <button class="segment" data-style="minimal" type="button">Minimal</button>
+            <button class="segment" data-style="neon" type="button">Neon</button>
+            <button class="segment" data-style="modern" type="button">Modern</button>
+          </div>
+        </div>
+
+        <div class="customizer-grid">
+          <div class="customizer-block">
+            <label>Elementos</label>
+            <div id="element-chips" class="chip-list"></div>
+          </div>
+
+          <div class="customizer-block">
+            <label>Paleta</label>
+            <div class="color-stack">
+              <label class="color-field">
+                <span>Principal</span>
+                <input id="accent-main" type="color" value="#8b5cf6" />
+              </label>
+              <label class="color-field">
+                <span>Secundária</span>
+                <input id="accent-alt" type="color" value="#06b6d4" />
+              </label>
+              <label class="color-field">
+                <span>Sucesso</span>
+                <input id="success-color" type="color" value="#34d399" />
+              </label>
+              <label class="color-field">
+                <span>Aviso</span>
+                <input id="warning-color" type="color" value="#fbbf24" />
+              </label>
+              <label class="color-field">
+                <span>Sugestão</span>
+                <input id="suggestion-color" type="color" value="#d65d0e" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="customizer-block">
+          <label>Recursos do shell</label>
+          <div id="plugin-list" class="check-grid"></div>
+        </div>
+
+        <div class="customizer-block">
+          <label>Aliases</label>
+          <div id="alias-list" class="check-grid"></div>
+        </div>
+
+        <div class="customizer-block">
+          <label>Config extra</label>
+          <textarea id="custom-snippet" rows="6" spellcheck="false"></textarea>
+        </div>
+
+        <button id="save-custom-theme" class="primary-button" type="button">Salvar tema</button>
+      </div>
     </div>
   </aside>
 
@@ -37,7 +106,7 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">Preview em tempo real</p>
-        <h2>Terminal Zsh</h2>
+        <h2 id="panel-title">Terminal Zsh</h2>
       </div>
       <button id="apply-theme" class="primary-button">Aplicar tema</button>
     </header>
