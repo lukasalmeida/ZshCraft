@@ -49,6 +49,70 @@
           </div>
         </div>
 
+        <div class="customizer-block">
+          <label>Módulos do Prompt</label>
+          <div id="prompt-module-list" class="check-grid"></div>
+          <div class="option-grid">
+            <label class="mini-field">
+              <span>Ordem</span>
+              <select id="prompt-order">
+                <option value="user|path|git|runtime|status">Usuário → Diretório → Git → Runtime</option>
+                <option value="path|user|git|runtime|status">Diretório → Usuário → Git → Runtime</option>
+                <option value="user|git|path|runtime|status">Usuário → Git → Diretório → Runtime</option>
+                <option value="git|user|path|runtime|status">Git → Usuário → Diretório → Runtime</option>
+              </select>
+            </label>
+            <label class="mini-field">
+              <span>Diretório</span>
+              <select id="directory-style">
+                <option value="full">Caminho completo</option>
+                <option value="short">Encurtado (.../ZshCraft)</option>
+                <option value="compact">Compacto</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="customizer-block">
+          <label>Visual e Estilo</label>
+          <div class="option-grid">
+            <label class="mini-field">
+              <span>Bloco</span>
+              <select id="block-separator">
+                <option value=""></option>
+                <option value="▌">▌</option>
+                <option value="❯">❯</option>
+                <option value="│">│</option>
+              </select>
+            </label>
+            <label class="mini-field">
+              <span>Interno</span>
+              <select id="inner-separator">
+                <option value="›">›</option>
+                <option value="|">|</option>
+                <option value="/">/</option>
+                <option value="•">•</option>
+              </select>
+            </label>
+            <label class="mini-field">
+              <span>Borda</span>
+              <select id="border-effect">
+                <option value="glow">Iluminação</option>
+                <option value="fade">Degradê</option>
+                <option value="plain">Sem efeito</option>
+              </select>
+            </label>
+            <label class="mini-field">
+              <span>Ícones</span>
+              <select id="icon-set">
+                <option value="nerd">Nerd Fonts</option>
+                <option value="emoji">Emoji</option>
+                <option value="classic">Clássico</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
         <div class="customizer-grid">
           <div class="customizer-block">
             <label>Elementos</label>
@@ -90,6 +154,37 @@
         <div class="customizer-block">
           <label>Aliases</label>
           <div id="alias-list" class="check-grid"></div>
+        </div>
+
+        <div class="customizer-block">
+          <label>Configuração e Comportamento</label>
+          <div class="option-grid">
+            <label class="mini-field">
+              <span>Formato</span>
+              <select id="config-format">
+                <option value="toml">TOML</option>
+                <option value="json">JSON</option>
+                <option value="yaml">YAML</option>
+              </select>
+            </label>
+            <label class="mini-field">
+              <span>Cursor final</span>
+              <input id="cursor-style" type="text" value="❯❯" maxlength="4" />
+            </label>
+            <label class="mini-field">
+              <span>Cor do erro</span>
+              <input id="error-cursor-color" type="color" value="#f87171" />
+            </label>
+            <label class="mini-field">
+              <span>Tema base</span>
+              <select id="theme-preset">
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+                <option value="neon">Neon</option>
+                <option value="cyberpunk">Cyberpunk</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         <div class="customizer-block">

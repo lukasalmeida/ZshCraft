@@ -10,6 +10,10 @@
  --green: #34d399;
  --yellow: #fbbf24;
  --red: #f87171;
+ --terminal-bg: #020617;
+ --terminal-fg: #dbeafe;
+ --terminal-accent: #7c3aed;
+ --terminal-accent-alt: #06b6d4;
 }
 
 * {
@@ -157,6 +161,39 @@ button {
  display: grid;
  grid-template-columns: repeat(2, minmax(0, 1fr));
  gap: 8px;
+}
+
+.option-grid {
+ display: grid;
+ grid-template-columns: repeat(2, minmax(0, 1fr));
+ gap: 8px;
+}
+
+.mini-field {
+ display: grid;
+ gap: 6px;
+ border: 1px solid var(--line);
+ border-radius: 10px;
+ background: rgba(15, 23, 42, 0.8);
+ padding: 8px 10px;
+}
+
+.mini-field span {
+ color: var(--muted);
+ font-size: 0.72rem;
+ letter-spacing: 0.08em;
+ text-transform: uppercase;
+}
+
+.mini-field select,
+.mini-field input {
+ width: 100%;
+ border: 1px solid var(--line);
+ border-radius: 8px;
+ background: rgba(2, 6, 23, 0.8);
+ color: var(--text);
+ padding: 8px 10px;
+ font: inherit;
 }
 
 .segment {
@@ -315,11 +352,46 @@ textarea {
  margin: 0;
  min-height: 420px;
  padding: 24px;
- background: rgba(2, 6, 23, 0.8);
- color: #dbeafe;
+ background: var(--terminal-bg);
+ color: var(--terminal-fg);
  line-height: 1.7;
  white-space: pre-wrap;
+ overflow: auto;
+ word-break: normal;
+ tab-size: 2;
  font-family: "JetBrains Mono", "Fira Code", monospace;
+ font-variant-ligatures: none;
+ letter-spacing: 0.01em;
+}
+
+.terminal-output .line {
+ display: block;
+ min-height: 1.2em;
+ color: var(--terminal-fg);
+}
+
+.terminal-output .line-command {
+ color: var(--terminal-fg);
+}
+
+.terminal-output .line-script {
+ color: #a5b4fc;
+}
+
+.terminal-output .line-success {
+ color: var(--green);
+}
+
+.terminal-output .line-warning {
+ color: var(--yellow);
+}
+
+.terminal-output .line-comment {
+ color: #94a3b8;
+}
+
+.terminal-output .line-empty {
+ min-height: 0.3em;
 }
 
 @media (max-width: 860px) {

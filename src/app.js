@@ -38,7 +38,32 @@ const customState = {
   success: "#34d399",
   warning: "#fbbf24",
   suggestion: "#d65d0e",
-  elements: ["user", "path", "git", "status", "prompt"],
+  elements: ["user", "path", "git", "runtime", "status", "prompt"],
+  promptOrder: "user|path|git|runtime|status",
+  runtimeModules: {
+    node: true,
+    python: true,
+    rust: false,
+    go: false,
+    docker: true,
+    kubernetes: false,
+  },
+  gitIndicators: {
+    branch: true,
+    modified: true,
+    staged: true,
+    untracked: true,
+    conflicts: true,
+  },
+  directoryStyle: "short",
+  blockSeparator: "",
+  innerSeparator: "›",
+  borderEffect: "glow",
+  iconSet: "nerd",
+  themePreset: "dark",
+  configFormat: "toml",
+  cursorStyle: "❯❯",
+  cursorErrorColor: "#f87171",
   plugins: {
     zinit: true,
     autosuggestions: true,
@@ -72,13 +97,34 @@ const promptStyles = {
 
 const elementDefinitions = {
   user: { label: "Usuário", sample: "lucas@zshcraft" },
-  path: { label: "Caminho", sample: "~/projects" },
+  path: { label: "Diretório", sample: "~/projects" },
   git: { label: "Git", sample: "git:(main)" },
+  runtime: { label: "Runtime", sample: "node 20.11.0" },
   status: { label: "Status", sample: "✓" },
   prompt: { label: "Prompt", sample: "❯" },
   command: { label: "Comando", sample: "npm run dev" },
   clock: { label: "Relógio", sample: "18:42" },
 };
+
+const runtimeDefinitions = {
+  node: { label: "Node.js", sample: "node 20.11.0" },
+  python: { label: "Python", sample: "py 3.12.0" },
+  rust: { label: "Rust", sample: "rustc 1.81.0" },
+  go: { label: "Go", sample: "go 1.23.0" },
+  docker: { label: "Docker", sample: "docker 27.2" },
+  kubernetes: { label: "Kubernetes", sample: "kubectl 1.30" },
+};
+
+const promptModuleDefinitions = [
+  ["user", "Usuário"],
+  ["path", "Diretório"],
+  ["git", "Git"],
+  ["runtime", "Runtime"],
+  ["status", "Status"],
+  ["command", "Comando"],
+  ["clock", "Relógio"],
+  ["prompt", "Prompt"],
+];
 
 const pluginDefinitions = [
   ["zinit", "Zinit"],
@@ -120,6 +166,17 @@ const accentAltInput = document.querySelector("#accent-alt");
 const successColorInput = document.querySelector("#success-color");
 const warningColorInput = document.querySelector("#warning-color");
 const suggestionColorInput = document.querySelector("#suggestion-color");
+const promptModuleList = document.querySelector("#prompt-module-list");
+const promptOrderSelect = document.querySelector("#prompt-order");
+const directoryStyleSelect = document.querySelector("#directory-style");
+const blockSeparatorSelect = document.querySelector("#block-separator");
+const innerSeparatorSelect = document.querySelector("#inner-separator");
+const borderEffectSelect = document.querySelector("#border-effect");
+const iconSetSelect = document.querySelector("#icon-set");
+const configFormatSelect = document.querySelector("#config-format");
+const cursorStyleInput = document.querySelector("#cursor-style");
+const errorCursorColorInput = document.querySelector("#error-cursor-color");
+const themePresetSelect = document.querySelector("#theme-preset");
 
 const defaultThemeName = "robbyrussell";
 
@@ -128,9 +185,103 @@ const applyCustomAccent = () => {
   document.documentElement.style.setProperty("--accent-soft", `${customState.accent}2b`);
   document.documentElement.style.setProperty("--green", customState.success);
   document.documentElement.style.setProperty("--yellow", customState.warning);
+
+  const isLightPreset = customState.themePreset === "light";
+  document.documentElement.style.setProperty("--terminal-bg", isLightPreset ? "#f8fafc" : "#020617");
+  document.documentElement.style.setProperty("--terminal-fg", isLightPreset ? "#0f172a" : "#dbeafe");
+  document.documentElement.style.setProperty("--terminal-accent", customState.accent);
+  document.documentElement.style.setProperty("--terminal-accent-alt", customState.accentAlt);
+};
+
+const escapeHtml = (value) => String(value)
+  .replace(/&/g, "&amp;")
+  .replace(/</g, "&lt;")
+  .replace(/>/g, "&gt;")
+  .replace(/\"/g, "&quot;")
+  .replace(/'/g, "&#039;");
+
+const renderTerminalPreview = (rawText) => {
+  const lines = String(rawText || "").split("\n");
+
+  return lines.map((line) => {
+    const safe = escapeHtml(line);
+
+    if (!line) {
+      return '<span class="line line-empty">&nbsp;</span>';
+    }
+
+    if (/^#\s+---\s*~\/\.zshrc\s*---/.test(line)) {
+      return `<span class="line line-comment">${safe}</span>`;
+    }
+
+    if (/^(export|PROMPT=|RPROMPT=|alias|source|setopt|bindkey|autoload|zstyle|eval|HISTFILE|PATH=|if \[\[|fi|\[\s*-s|\[\[\s*-s)/.test(line.trim())) {
+      return `<span class="line line-script">${safe}</span>`;
+    }
+
+    if (/^(?:[A-Za-z0-9_.-]+@|~\/|\.\/|\/)/.test(line.trim()) || /(?:git status|npm run dev|node -v|echo|ls|pwd|clear|python|pip)/i.test(line)) {
+      return `<span class="line line-command">${safe}</span>`;
+    }
+
+    if (/(On branch main|Your branch is up to date|Your branch is clean|Tema personalizado|ZshCraft pronto|Finished|✓|✦|✚|✖)/.test(line)) {
+      return `<span class="line line-success">${safe}</span>`;
+    }
+
+    if (/(warning|warn|not found|failed|error|deprecated)/i.test(line)) {
+      return `<span class="line line-warning">${safe}</span>`;
+    }
+
+    return `<span class="line line-plain">${safe}</span>`;
+  }).join('<br>');
 };
 
 const normalizeThemeName = (value) => value || defaultThemeName;
+
+const hexToRgb = (hex) => {
+  const safeHex = (hex || "#000000").replace("#", "");
+  const normalized = safeHex.length === 3
+    ? safeHex.split("").map((char) => `${char}${char}`).join("")
+    : safeHex;
+
+  const number = Number.parseInt(normalized, 16) || 0;
+  return {
+    r: (number >> 16) & 255,
+    g: (number >> 8) & 255,
+    b: number & 255,
+  };
+};
+
+const closestZshColorName = (hex) => {
+  const palette = [
+    ["black", "#000000"],
+    ["red", "#ff0000"],
+    ["green", "#00ff00"],
+    ["yellow", "#ffff00"],
+    ["blue", "#0000ff"],
+    ["magenta", "#ff00ff"],
+    ["cyan", "#00ffff"],
+    ["white", "#ffffff"],
+  ];
+
+  const source = hexToRgb(hex);
+  let chosen = "cyan";
+  let bestDistance = Number.POSITIVE_INFINITY;
+
+  palette.forEach(([name, candidateHex]) => {
+    const candidate = hexToRgb(candidateHex);
+    const distance = Math.sqrt(
+      (source.r - candidate.r) ** 2 +
+      (source.g - candidate.g) ** 2 +
+      (source.b - candidate.b) ** 2
+    );
+
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      chosen = name;
+    }
+  });
+
+  return chosen;
+};
 
 const renderCheckboxGroup = (container, entries, stateMap, onToggle) => {
   container.innerHTML = "";
@@ -151,37 +302,88 @@ const renderCheckboxGroup = (container, entries, stateMap, onToggle) => {
 
 const buildCustomPrompt = () => {
   const promptConfig = promptStyles[customState.style] ?? promptStyles.classic;
-  const parts = [];
+  const activeRuntimes = Object.entries(customState.runtimeModules)
+    .filter(([, enabled]) => enabled)
+    .map(([key]) => runtimeDefinitions[key]?.label ?? key);
 
-  if (customState.elements.includes("user")) parts.push("lucas@zshcraft");
-  if (customState.elements.includes("path")) parts.push("~/projects");
-  if (customState.elements.includes("git")) parts.push("git:(main)");
-  if (customState.elements.includes("status")) parts.push("✓");
-  if (customState.elements.includes("clock")) parts.push("18:42");
-  if (customState.elements.includes("command")) parts.push("npm run dev");
+  const pathValue = customState.directoryStyle === "full"
+    ? "~/projects/zshcraft" 
+    : customState.directoryStyle === "compact"
+      ? "~/p/zshcraft"
+      : ".../ZshCraft";
 
-  const primaryLine = parts.length ? parts.join(promptConfig.separator) : "lucas@zshcraft ~/projects";
-  const promptSymbol = customState.elements.includes("prompt") ? promptConfig.prompt : "❯";
+  const gitValue = customState.gitIndicators.branch ? "git:(main)" : "git";
+  const runtimeValue = activeRuntimes.length ? activeRuntimes.slice(0, 2).join(" • ") : "";
+  const statusValue = customState.gitIndicators.conflicts ? "✦" : "✓";
+
+  const partMap = {
+    user: "lucas@zshcraft",
+    path: pathValue,
+    git: gitValue,
+    runtime: runtimeValue,
+    status: statusValue,
+    command: "npm run dev",
+    clock: "18:42",
+  };
+
+  const order = (customState.promptOrder || "user|path|git|runtime|status").split("|");
+  const parts = order
+    .filter((key) => customState.elements.includes(key))
+    .map((key) => partMap[key])
+    .filter(Boolean);
+
+  const primaryLine = parts.length ? parts.join(customState.innerSeparator || promptConfig.separator) : "lucas@zshcraft .../ZshCraft";
+  const promptSymbol = customState.elements.includes("prompt") ? promptConfig.prompt : customState.cursorStyle?.slice(0, 1) || "❯";
 
   return {
     primaryLine,
     promptSymbol,
+    gitValue,
+    runtimeValue,
+    pathValue,
   };
 };
 
 const composeCustomTheme = () => {
-  const { primaryLine, promptSymbol } = buildCustomPrompt();
+  const { primaryLine, promptSymbol, runtimeValue } = buildCustomPrompt();
+  const gitStatusText = customState.gitIndicators.modified ? "On branch main" : "Your branch is clean";
+  const runtimeStatusLines = runtimeValue ? [`${promptSymbol} node -v`, runtimeValue] : [];
+  const accentColor = closestZshColorName(customState.accent);
+  const accentAltColor = closestZshColorName(customState.accentAlt);
+  const successColor = closestZshColorName(customState.success);
+  const warningColor = closestZshColorName(customState.warning);
+  const suggestionColor = closestZshColorName(customState.suggestion);
+  const promptString = `${primaryLine}`.replace(/"/g, '\\"');
+  const promptIcon = `${promptSymbol}`.replace(/"/g, '\\"');
+  const runtimeStatusText = runtimeValue ? `${runtimeValue}`.replace(/"/g, '\\"') : "zshcraft";
 
   const previewLines = [
     `${primaryLine}`,
     `${promptSymbol} git status`,
-    `On branch main`,
+    gitStatusText,
     `Your branch is up to date with 'origin/main'.`,
+    ...runtimeStatusLines,
     `${promptSymbol} echo "Tema personalizado"`,
     `Tema personalizado`,
   ];
 
   const scriptLines = [];
+  scriptLines.push(`export ZSHCRAFT_CONFIG_FORMAT="${customState.configFormat}"`);
+  scriptLines.push(`export ZSHCRAFT_PROMPT_ORDER="${customState.promptOrder}"`);
+  scriptLines.push(`export ZSHCRAFT_DIRECTORY_STYLE="${customState.directoryStyle}"`);
+  scriptLines.push(`export ZSHCRAFT_BLOCK_SEPARATOR="${customState.blockSeparator}"`);
+  scriptLines.push(`export ZSHCRAFT_INNER_SEPARATOR="${customState.innerSeparator}"`);
+  scriptLines.push(`export ZSHCRAFT_THEME_PRESET="${customState.themePreset}"`);
+  scriptLines.push(`export ZSHCRAFT_CURSOR="${customState.cursorStyle}"`);
+  scriptLines.push(`export ZSHCRAFT_ERROR_CURSOR_COLOR="${customState.cursorErrorColor}"`);
+  scriptLines.push(`export ZSHCRAFT_ACCENT_COLOR="${accentColor}"`);
+  scriptLines.push(`export ZSHCRAFT_ACCENT_ALT_COLOR="${accentAltColor}"`);
+  scriptLines.push(`export ZSHCRAFT_SUCCESS_COLOR="${successColor}"`);
+  scriptLines.push(`export ZSHCRAFT_WARNING_COLOR="${warningColor}"`);
+  scriptLines.push(`export ZSHCRAFT_SUGGESTION_COLOR="${suggestionColor}"`);
+  scriptLines.push(`PROMPT="%F{${accentColor}}${promptString}%f %F{${accentAltColor}}${promptIcon}%f "`);
+  scriptLines.push(`RPROMPT="%F{${successColor}}${runtimeStatusText}%f"`);
+  scriptLines.push(`export LS_COLORS="di=${accentAltColor}:fi=${accentColor}:ln=${successColor}:so=${warningColor}:pi=${suggestionColor}"`);
 
   if (customState.plugins.zinit) {
     scriptLines.push("if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then");
@@ -283,12 +485,58 @@ const renderElementChips = () => {
   });
 };
 
+const renderPromptModuleList = () => {
+  promptModuleList.innerHTML = "";
+
+  promptModuleDefinitions.forEach(([key, label]) => {
+    const row = document.createElement("label");
+    row.className = "check-item";
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.checked = customState.elements.includes(key);
+    input.addEventListener("change", () => {
+      if (input.checked) {
+        customState.elements = [...new Set([...customState.elements, key])];
+      } else {
+        customState.elements = customState.elements.filter((item) => item !== key);
+      }
+      renderElementChips();
+      renderPromptModuleList();
+      updateTerminal("custom");
+    });
+    const span = document.createElement("span");
+    span.textContent = label;
+    row.append(input, span);
+    promptModuleList.appendChild(row);
+  });
+};
+
+const applyThemePreset = (preset) => {
+  const presets = {
+    dark: { accent: "#8b5cf6", accentAlt: "#06b6d4", success: "#34d399", warning: "#fbbf24", suggestion: "#d65d0e" },
+    light: { accent: "#2563eb", accentAlt: "#0ea5e9", success: "#16a34a", warning: "#f59e0b", suggestion: "#f97316" },
+    neon: { accent: "#a855f7", accentAlt: "#22d3ee", success: "#2dd4bf", warning: "#facc15", suggestion: "#fb7185" },
+    cyberpunk: { accent: "#ff4ecd", accentAlt: "#00f5d4", success: "#7ee787", warning: "#ffb703", suggestion: "#f72585" },
+  };
+
+  const theme = presets[preset] ?? presets.dark;
+  customState.accent = theme.accent;
+  customState.accentAlt = theme.accentAlt;
+  customState.success = theme.success;
+  customState.warning = theme.warning;
+  customState.suggestion = theme.suggestion;
+
+  applyCustomAccent();
+  renderCustomControls();
+};
+
 const renderCustomControls = () => {
   segmentButtons.forEach((button) => {
     button.classList.toggle("active", button.dataset.style === customState.style);
   });
 
   renderElementChips();
+  renderPromptModuleList();
   renderCheckboxGroup(pluginList, pluginDefinitions, customState.plugins, (key, checked) => {
     customState.plugins[key] = checked;
     updateTerminal("custom");
@@ -297,6 +545,17 @@ const renderCustomControls = () => {
     customState.aliases[key] = checked;
     updateTerminal("custom");
   });
+
+  if (promptOrderSelect) promptOrderSelect.value = customState.promptOrder;
+  if (directoryStyleSelect) directoryStyleSelect.value = customState.directoryStyle;
+  if (blockSeparatorSelect) blockSeparatorSelect.value = customState.blockSeparator;
+  if (innerSeparatorSelect) innerSeparatorSelect.value = customState.innerSeparator;
+  if (borderEffectSelect) borderEffectSelect.value = customState.borderEffect;
+  if (iconSetSelect) iconSetSelect.value = customState.iconSet;
+  if (configFormatSelect) configFormatSelect.value = customState.configFormat;
+  if (cursorStyleInput) cursorStyleInput.value = customState.cursorStyle;
+  if (errorCursorColorInput) errorCursorColorInput.value = customState.cursorErrorColor;
+  if (themePresetSelect) themePresetSelect.value = customState.themePreset;
 
   customSnippetInput.value = customState.customSnippet;
   accentMainInput.value = customState.accent;
@@ -309,7 +568,7 @@ const renderCustomControls = () => {
 const updateTerminal = (themeName) => {
   const resolvedTheme = normalizeThemeName(themeName);
   const themeValue = resolvedTheme === "custom" ? composeCustomTheme() : themeTemplates[resolvedTheme] ?? themeTemplates[defaultThemeName];
-  terminalOutput.textContent = themeValue;
+  terminalOutput.innerHTML = renderTerminalPreview(themeValue);
 
   const themeButtons = document.querySelectorAll(".theme-button");
   themeButtons.forEach((button) => {
@@ -409,6 +668,47 @@ warningColorInput.addEventListener("input", (event) => {
 });
 suggestionColorInput.addEventListener("input", (event) => {
   customState.suggestion = event.target.value;
+  updateTerminal("custom");
+});
+promptOrderSelect.addEventListener("change", (event) => {
+  customState.promptOrder = event.target.value;
+  updateTerminal("custom");
+});
+directoryStyleSelect.addEventListener("change", (event) => {
+  customState.directoryStyle = event.target.value;
+  updateTerminal("custom");
+});
+blockSeparatorSelect.addEventListener("change", (event) => {
+  customState.blockSeparator = event.target.value;
+  updateTerminal("custom");
+});
+innerSeparatorSelect.addEventListener("change", (event) => {
+  customState.innerSeparator = event.target.value;
+  updateTerminal("custom");
+});
+borderEffectSelect.addEventListener("change", (event) => {
+  customState.borderEffect = event.target.value;
+  updateTerminal("custom");
+});
+iconSetSelect.addEventListener("change", (event) => {
+  customState.iconSet = event.target.value;
+  updateTerminal("custom");
+});
+configFormatSelect.addEventListener("change", (event) => {
+  customState.configFormat = event.target.value;
+  updateTerminal("custom");
+});
+cursorStyleInput.addEventListener("input", (event) => {
+  customState.cursorStyle = event.target.value || "❯❯";
+  updateTerminal("custom");
+});
+errorCursorColorInput.addEventListener("input", (event) => {
+  customState.cursorErrorColor = event.target.value;
+  updateTerminal("custom");
+});
+themePresetSelect.addEventListener("change", (event) => {
+  customState.themePreset = event.target.value;
+  applyThemePreset(customState.themePreset);
   updateTerminal("custom");
 });
 customSnippetInput.addEventListener("input", (event) => {
